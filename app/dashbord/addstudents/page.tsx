@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import "../../../styles/signup.css";
 
 import { auth, db, storage } from "@/lib/firebaseconfig";
@@ -14,13 +14,15 @@ import Image from "next/image";
 import { BookUp2Icon, ImageIcon, Upload, UploadCloud } from "lucide-react";
 import { addDoc, collection } from "firebase/firestore";
 import { log } from "console";
+import { onAuthStateChanged } from "firebase/auth";
+import { isAdmin } from "@/lib/adminCheck";
 
 type Pdffile = {
-  number:string,
-  class:string,
-  name:string,
-  isreturn:boolean
-}
+  number: string;
+  class: string;
+  name: string;
+  isreturn: boolean;
+};
 
 // ... (your existing imports)
 
@@ -31,10 +33,30 @@ function Page() {
   const [pdf, setPdf] = useState<File | null>(null);
   const [pdffile, setPdffile] = useState<Pdffile>({
     name: "",
-    number:"",
+    number: "",
     class: "",
-    isreturn: true
+    isreturn: true,
   });
+
+  const [currentUser, setCurrentUser] = useState(auth.currentUser);
+  const [isAdminUser, setIsAdminUser] = useState(false);
+  const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setCurrentUser(user);
+      if (user) {
+        const adminCheck = await isAdmin(user.uid);
+        setIsAdminUser(adminCheck);
+      } else {
+        setIsAdminUser(false);
+      }
+      setIsCheckingAdmin(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -70,24 +92,22 @@ function Page() {
       await uploadBytes(storageRefcover, image!);
       const imageUrlstudents = await getDownloadURL(storageRefcover);
 
-      
-
       // Add magazine data to Firestore
       const collectionRef = collection(db, "students");
 
       await addDoc(collectionRef, {
         name: pdffile.name,
-        number:pdffile.number,
+        number: pdffile.number,
         class: pdffile.class,
-        isreturn:pdffile.isreturn,
-        coverImage: imageUrlstudents
+        isreturn: pdffile.isreturn,
+        coverImage: imageUrlstudents,
       });
 
       setPdffile({
         name: "",
-        number:"",
+        number: "",
         class: "",
-        isreturn:true
+        isreturn: true,
       });
 
       setPdf(null);
@@ -99,6 +119,15 @@ function Page() {
       setLoading(false); // Set loading to false if there's an error
     }
   };
+
+  if (isCheckingAdmin) {
+    return <p>Loading...</p>; // Loading state while checking admin status
+  }
+
+  if (!currentUser || !isAdminUser) {
+    router.push("/dashbord"); // Redirect non-admin users
+    return null; // Avoid rendering the page content while redirecting
+  }
 
   return (
     <div>
@@ -112,29 +141,32 @@ function Page() {
                 </div>
 
                 <div className=" my-4">
-                <label htmlFor="profile-picture" className="cursor-pointer">
-                  {/* <User2 className="text-white absolute"/> */}
-                  <Image
-                     
-                    src={image ? URL.createObjectURL(image) : "/download.png"}
-                    alt=""
-                    width={34}
-                    height={34}
-                    className="mx-auto rounded-full w-32 h-32 object-cover cursor-pointer bg-slate-700"
-                  />
-                </label>
-                <h1 className="text-xl mt-4 font-bold px-3">Add New <span className="text-slate-500">Students</span></h1>
-                <p className='text-slate-500 text-xs mb-5 text-center'>Enter details of students</p>
+                  <label htmlFor="profile-picture" className="cursor-pointer">
+                    {/* <User2 className="text-white absolute"/> */}
+                    <Image
+                      src={image ? URL.createObjectURL(image) : "/download.png"}
+                      alt=""
+                      width={34}
+                      height={34}
+                      className="mx-auto rounded-full w-32 h-32 object-cover cursor-pointer bg-slate-700"
+                    />
+                  </label>
+                  <h1 className="text-xl mt-4 font-bold px-3">
+                    Add New <span className="text-slate-500">Students</span>
+                  </h1>
+                  <p className="text-slate-500 text-xs mb-5 text-center">
+                    Enter details of students
+                  </p>
 
-                <input
-                 required
-                  type="file"
-                  id="profile-picture"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleImageChange}
-                />
-              </div>
+                  <input
+                    required
+                    type="file"
+                    id="profile-picture"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageChange}
+                  />
+                </div>
                 <div className="form-group">
                   <Input
                     type="text"
@@ -152,7 +184,7 @@ function Page() {
                     type="text"
                     name="number"
                     className="py-6"
-                    placeholder="Student number"
+                    placeholder="Phone Number"
                     value={pdffile.number}
                     onChange={handleChange}
                     autoFocus
@@ -170,24 +202,26 @@ function Page() {
                   />
                 </div>
 
-    
-    
                 <div className="form-group">
-
                   <button
-                    className={`button ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`button ${
+                      loading ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                     type="submit"
                     disabled={loading}
                   >
                     {loading ? (
                       <div className="flex items-center">
-                        <div className="spinner-border spinner-border-sm text-light mr-2" role="status">
+                        <div
+                          className="spinner-border spinner-border-sm text-light mr-2"
+                          role="status"
+                        >
                           <span className="sr-only">Loading...</span>
                         </div>
                         Loading...
                       </div>
                     ) : (
-                      'Add Now..'
+                      "Add Now.."
                     )}
                   </button>
                 </div>

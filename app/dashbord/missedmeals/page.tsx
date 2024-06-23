@@ -7,7 +7,6 @@ import Nav from '@/components/nav';
 import { Card } from '@/components/ui/card';
 import { BeefIcon, Milestone, UserRoundCogIcon } from 'lucide-react';
 import { CalendarIcon } from "@radix-ui/react-icons"
-import { HobbyKnifeIcon } from "@radix-ui/react-icons"
 
 import { format } from "date-fns"
  
@@ -72,7 +71,7 @@ function Page() {
 
       <div className="flex-[6] flex pt-[5.2em] max-w-[100vw] sm:mt-0 dark:bg-[#0B1120]">
         <Slidbar />
-        <div className="hero w-full py-3 px-4 sm:px-8 mt-[5em] md:mt-4 overflow-auto scrollbar-hide no-scrollbar">
+        <div className="hero w-full py-3 px-4 sm:px-8 pt-[5em] md:mt-4 overflow-auto scrollbar-hide no-scrollbar">
           <div className="header rounded-md flex p-4 bg-blue-950 w-full mb-2 gap-2 text-white select-none">
             <BeefIcon className='text-xl' />
             <h3 className='text-xl'>MissedMeals</h3>

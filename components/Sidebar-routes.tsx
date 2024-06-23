@@ -6,23 +6,51 @@ import {
   RouteOffIcon,
   LucideEarth,
   UserSquare2,
+  UserCircleIcon,
+  History,
+  LucideBoxSelect,
+  UserRoundPlus,
 } from "lucide-react";
 import { SidebarItem } from "./sidebar-item";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { useGlobalContext } from "@/app/contexts/globalContext";
+import { auth } from "@/lib/firebaseconfig";
+import { isAdmin } from "@/lib/adminCheck";
 
 const teacherRoutes = [
   {
     icon: Compass,
-    label: "Home",
+    label: "Students",
     href: "/dashbord",
   },
-
   {
-    icon: UserSquare2,
+    icon: RouteOffIcon,
+    label: "Missed Meals",
+    href: "/dashbord/missedmeals",
+  },
+  {
+    icon: UserCircleIcon,
+    label: "Leaved",
+    href: "/dashbord/currenthistory",
+  },
+  {
+    icon: History,
+    label: "History",
+    href: "/dashbord/leavehistory",
+  },
+  {
+    icon: UserRoundPlus,
+    label: "Multiple Select",
+    href: "/dashbord/multipleselect",
+  },
+];
+
+const guestRoutes = [
+  {
+    icon: Compass,
     label: "Students",
-    href: "/dashbord/students",
+    href: "/dashbord",
   },
   {
     icon: RouteOffIcon,
@@ -31,43 +59,32 @@ const teacherRoutes = [
   },
 ];
 
-// const guestRoutes = [
-//   {
-//     icon: Compass,
-//     label: "Browse",
-//     href: "/dashbord",
-//   },
 
-//   {
-//     icon: BookImage,
-//     label: "Magazine",
-//     href: "/dashbord/magazine",
-//   },
-//   {
-//     icon: BookImage,
-//     label: "E books",
-//     href: "/dashbord/ebooks",
-//   },
-//   {
-//     icon: Library,
-//     label: "Holders",
-//     href: "/dashbord/holder",
-//   },
-
-// ]
 
 export const SidebarRoutes = () => {
   const { setShowModal } = useGlobalContext();
+  const [currentUser, setCurrentUser] = useState(auth.currentUser);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
 
   const handleCloseSidebar = () => {
     setShowModal(false);
   };
 
-  const routes = teacherRoutes;
+  const baseRoutes = isAdmin(currentUser?.uid) ? teacherRoutes : guestRoutes;
+
+
+  const routes = baseRoutes;
 
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col w-full mt-3">
       {routes.map((route) => (
         <SidebarItem
           key={route.href}

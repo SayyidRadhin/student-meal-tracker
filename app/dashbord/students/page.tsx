@@ -4,12 +4,14 @@ import Slidbar from "@/components/slidbar";
 import Nav from "@/components/nav";
 import {useCollection} from "react-firebase-hooks/firestore"
 import { collection, orderBy, query } from 'firebase/firestore';
-import { memberColumn } from './member-column';
 import { TableMembers } from '@/components/table-members';
 import { LucideUserCog2, UserCog, UserRoundCogIcon, UserX } from 'lucide-react';
-import { db } from '@/lib/firebaseconfig';
+import { auth, db } from '@/lib/firebaseconfig';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import { useColumns } from '../member-column';
+import { onAuthStateChanged } from 'firebase/auth';
+import { isAdmin } from '@/lib/adminCheck';
 
 export type UserData = {
   id:string;
@@ -23,6 +25,8 @@ export type UserData = {
 function Page() {
 
   const [users, setUsers] = useState<UserData[]>([])
+  const [isAdminUser, setIsAdminUser] = useState(false);
+
  const [docs,loading,error] = useCollection(
   query(
     collection(db,"students")
@@ -30,6 +34,18 @@ function Page() {
  )
  console.log(docs?.docs);
  const router = useRouter();
+
+ const columns = useColumns();
+
+ 
+ useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, (user) => {
+    if (user) {
+      setIsAdminUser(isAdmin(user.uid));
+    }
+  });
+  return () => unsubscribe();
+}, []);
 
  useEffect(() => {
    if(!docs) return;
@@ -64,9 +80,12 @@ console.log(users);
          <div className="header rounded-md flex py-2  px-4 items-center justify-between bg-blue-950 w-full mb-2 gap-2 text-white select-none">
           <div className='flex gap-2'><UserRoundCogIcon className='text-xl'/>
            <h3 className='text-xl'>Members</h3></div>
-           <Button variant={'default'} className='bg-' onClick={onClick}>Add Students</Button>
-         </div>
-             <TableMembers columns={memberColumn} data={users} />
+           {isAdminUser && (
+              <Button variant={"default"} className="bg-" onClick={onClick}>
+                Add Students
+              </Button>
+            )}         </div>
+             <TableMembers columns={columns} data={users} />
       </div>
      
     </div>

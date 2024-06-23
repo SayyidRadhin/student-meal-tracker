@@ -11,6 +11,9 @@ import { twMerge } from "tailwind-merge";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { auth } from "@/lib/firebaseconfig";
 import { SidebarRoutes } from "./Sidebar-routes";
+import { Button } from "./ui/button";
+import { useRouter } from "next/navigation";
+import { signOut } from "firebase/auth";
 
 function Slidbar() {
   const { setShowModal, showModal } = useGlobalContext();
@@ -22,8 +25,23 @@ function Slidbar() {
     }
   };
 
+  const router = useRouter()
+
   const handleLinkClick = (href: string): void => {
     setActiveLink(href);
+  };
+
+  const onClick = () => {
+    router.push("/login");
+  }
+  
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      // Perform any additional cleanup or navigation if needed
+    } catch (error) {
+      console.error("Error during logout:");
+    }
   };
 
   return (
@@ -63,20 +81,33 @@ function Slidbar() {
           <div />
         </nav>
         <div className="user flex  px-8 sm:hidden gap-2 mt-auto py-4 items-center ">
-          <Avatar className="w-10 h-10 ring-4 ring-slate-200 hover:scale-105 transition-all duration-200 ease-in-out cursor-pointer">
-            <AvatarImage src={unsubscribe?.photoURL as string} />
-            <AvatarFallback className="bg-slate-300 text-white">
-              <User2 />
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <p className="font-semibold  leading-3 items-end tracking-tighter capitalize dark:text-slate-200 text-slate-700 text-base opacity-80">
-              {unsubscribe?.displayName}
-            </p>
-            <span className="opacity-80 dark:text-slate-200 text-sm text-slate-600 ">
-              member
-            </span>
-          </div>
+         
+          <div className="w-full">
+            {
+              unsubscribe ? (
+                <div className="w-full"><div className="flex gap-3  user "><Avatar className="w-10 h-10 ring-4 ring-slate-200 hover:scale-105 transition-all duration-200 ease-in-out cursor-pointer">
+                  <AvatarImage src={unsubscribe?.photoURL as string} />
+                  <AvatarFallback className="bg-slate-300 text-white">
+                    <User2 />
+                  </AvatarFallback>
+                </Avatar><div className="">
+
+
+                    <p className="font-semibold  leading-3 items-end tracking-tighter capitalize dark:text-slate-200 text-slate-700 text-base opacity-80">
+                      {unsubscribe?.displayName}
+                    </p><span className="opacity-80 dark:text-slate-200 text-sm text-slate-600 ">
+                      member
+                    </span></div></div><Button
+                      className=" py-4 mt-4 w-full"
+                      onClick={handleLogout}
+                    >
+                    Logout
+                  </Button></div>
+              ): (
+                <Button className="w-full" onClick={onClick}>Sign In</Button>
+              )
+        }
+         </div>
 
           {/* </div>
         <div className="sm:flex mt-auto hidden  justify-center items-center gap-2 opacity-70 py-4 ">

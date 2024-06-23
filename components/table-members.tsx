@@ -29,10 +29,10 @@ interface DataTableProps<TData, TValue> {
 
 
 
-export function TableMembers<TData, TValue>({
+export function TableMembers<TData extends { isreturned?: boolean }, TValue>({
     columns,
     data,
-  }: DataTableProps<TData, TValue>) {
+  }: DataTableProps<TData , TValue>) {
 
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
       []
@@ -65,7 +65,7 @@ export function TableMembers<TData, TValue>({
           onChange={(event: { target: { value: any } }) =>
             table.getColumn("name")?.setFilterValue(event.target.value)
           }
-          className="max-w-sm"
+          className=" w-full md:max-w-sm"
         />
       </div>
       <div className="rounded-md border">
@@ -74,12 +74,15 @@ export function TableMembers<TData, TValue>({
           <TableBody>
             {rowModel && rowModel.rows?.length ? (
               rowModel.rows.map((row) => {
+
+                const isreturned = row.original.isreturned
                                 
                return (
                <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                >
+                  className={`${!isreturned ? "bg-red-100 hover:bg-red-200" : ""}`} // Apply light red background if not returned
+                  >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="p-0">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}

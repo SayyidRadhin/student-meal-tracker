@@ -1,8 +1,8 @@
 // utils/missedMeals.js
 const mealTimes = {
   breakfast: "08:00",
-  lunch: "12:00",
-  dinner: "18:00",
+  lunch: "13:00",
+  dinner: "20:00",
 };
 
 const parseTime = (timeString: any) => {
