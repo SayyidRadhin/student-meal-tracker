@@ -82,7 +82,12 @@ function Page() {
         const leaveDocRef = doc(db, "leaves", leaveDoc.id);
 
         // Update the leave record's return status to true
-        await updateDoc(leaveDocRef, { isreturn: true });
+        const currentTime = new Date();
+
+        await updateDoc(leaveDocRef, {
+          isreturn: true,
+          arrivalTime: currentTime,
+        });
       }
 
       // Deleting document from "missed" collection

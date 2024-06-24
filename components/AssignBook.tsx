@@ -23,6 +23,7 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  setDoc,
   updateDoc,
   where,
 } from "firebase/firestore";
@@ -101,7 +102,7 @@ function AssignBook({ student, studentId, isreturned }: AssignBookProps) {
         const currentTime = new Date();
         await updateDoc(leaveDocRef, {
           isreturn: true,
-          arrivalTime: arrivalTime,
+          arrivalTime: currentTime,
         });
      
       }else{

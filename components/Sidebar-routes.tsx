@@ -10,6 +10,7 @@ import {
   History,
   LucideBoxSelect,
   UserRoundPlus,
+  UserRound,
 } from "lucide-react";
 import { SidebarItem } from "./sidebar-item";
 import { useEffect, useState } from "react";
@@ -43,6 +44,11 @@ const teacherRoutes = [
     icon: UserRoundPlus,
     label: "Multiple Select",
     href: "/dashbord/multipleselect",
+  },
+  {
+    icon: UserRound,
+    label: "Edit students",
+    href: "/dashbord/editstudents",
   },
 ];
 

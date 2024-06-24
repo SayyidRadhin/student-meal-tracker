@@ -21,6 +21,7 @@ type Pdffile = {
   number: string;
   class: string;
   name: string;
+  place: string;
   isreturn: boolean;
 };
 
@@ -35,6 +36,7 @@ function Page() {
     name: "",
     number: "",
     class: "",
+    place:"",
     isreturn: true,
   });
 
@@ -99,11 +101,13 @@ function Page() {
         name: pdffile.name,
         number: pdffile.number,
         class: pdffile.class,
+        place: pdffile.place,
         isreturn: pdffile.isreturn,
         coverImage: imageUrlstudents,
       });
 
       setPdffile({
+        place:"",
         name: "",
         number: "",
         class: "",
@@ -170,6 +174,7 @@ function Page() {
                 <div className="form-group">
                   <Input
                     type="text"
+                    required
                     name="name"
                     className="py-6"
                     placeholder="Name"
@@ -181,7 +186,7 @@ function Page() {
                 <div className="form-group">
                   <Input
                     required
-                    type="text"
+                    type="number"
                     name="number"
                     className="py-6"
                     placeholder="Phone Number"
@@ -192,11 +197,24 @@ function Page() {
                 </div>
                 <div className="form-group">
                   <Input
+                  required
                     type="text"
                     className="py-6"
                     placeholder="Class"
                     value={pdffile.class}
                     name="class"
+                    onChange={handleChange}
+                    autoFocus
+                  />
+                </div>
+                <div className="form-group">
+                  <Input
+                  required
+                    type="text"
+                    className="py-6"
+                    placeholder="Place"
+                    value={pdffile.place}
+                    name="place"
                     onChange={handleChange}
                     autoFocus
                   />
